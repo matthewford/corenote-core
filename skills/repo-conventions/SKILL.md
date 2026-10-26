@@ -24,6 +24,10 @@ explicit `ops/` or `chore/` prefix.
   tracker card ref (`CORE-xxx`). Never narrate what the diff shows.
 - Order commits: prep refactor, then feature, then tooling/CI/docs. Fix review
   nitpicks into the commit that introduced the code.
+- Docs-only commits — no code, config, migration, schema or generated contract
+  changes — append `[ci skip]` to the title so CI minutes are never spent on
+  prose (GitHub skips the run for the push). Anything that can break a build
+  never carries the marker.
 
 ## Local feedback loop
 
