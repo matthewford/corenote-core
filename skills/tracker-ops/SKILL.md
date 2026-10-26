@@ -1,7 +1,7 @@
 ---
 name: tracker-ops
 description: Operate the corenote tracker as an agent — claim tasks with receipts, hold leases with heartbeats, and complete with typed evidence a reviewer can verify.
-version: 1.0.0
+version: 1.1.0
 ---
 
 # Tracker operations
@@ -26,6 +26,12 @@ Agent issue mutations require a current changes-review receipt scoped to the
 authenticated context session. Assignment grants neither access nor execution
 ownership. After a lease ends the execution fence is monotonic — a fresh claim
 is required after handoff.
+
+## Notify before blocking
+
+Prefer notifications over blocking. A task comment is for FYI and narrative;
+reserve blocking states (parked, blocked dependencies) for when work is
+actually blocked on someone. Do not park a task merely to report progress.
 
 ## Completion evidence
 
