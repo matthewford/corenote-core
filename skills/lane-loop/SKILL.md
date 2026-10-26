@@ -1,20 +1,23 @@
 ---
 name: lane-loop
-description: Run a corenote implementation lane end to end — isolated worktree, red-first TDD, atomic commits, PR with green CI lanes, merge and cleanup.
-version: 1.0.0
+description: Run a corenote implementation lane end to end — branch in your clone, red-first TDD, atomic commits, PR with green CI lanes, merge and cleanup.
+version: 1.1.0
 ---
 
 # The lane loop
 
-## Isolate
+## Branch
 
-Never work in the main checkout. Create a worktree under `kb-lanes/` with a
-branch named after the task:
+Your container clone is already yours alone — nobody else works in it. Branch
+directly in it from the latest main:
 
 ```
 git fetch origin
-git worktree add /path/kb-lanes/core-<n>-<slug> -b core-<n>-<slug> origin/main
+git checkout -b core-<n>-<slug> origin/main
 ```
+
+Do not create git worktrees: they exist to protect a shared checkout, and your
+clone is not shared.
 
 ## Build red-first
 
@@ -28,7 +31,8 @@ it green. Record test names and one-line red-to-green evidence for the PR body.
 2. Watch every CI lane; all must be green before merge. Infra flakes get one
    rerun; your own diff gets a fix on the branch.
 3. Merge with a merge commit. Record the merge SHA.
-4. Clean up: remove the worktree, delete the branch locally and on the remote.
+4. Clean up: delete the branch on the remote. Your clone goes away with the
+   session; leave nothing behind in the repo itself.
 
 ## Stay honest
 
