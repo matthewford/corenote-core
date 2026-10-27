@@ -1,7 +1,7 @@
 ---
 name: lane-loop
-description: Run a corenote implementation lane end to end — branch in your clone, red-first TDD, atomic commits, PR with green CI lanes, merge and cleanup.
-version: 1.2.0
+description: Run a corenote implementation lane end to end — branch in your clone, red-first TDD, atomic commits, PR with green CI lanes, merge, move the card to In Review, and cleanup.
+version: 1.3.0
 ---
 
 # The lane loop
@@ -34,6 +34,9 @@ it green. Record test names and one-line red-to-green evidence for the PR body.
 4. Clean up: delete `.corenote-tmp/` and any other scratch, then delete the
    branch on the remote. Your clone goes away with the session; leave nothing
    behind in the repo itself.
+5. Move the card off In Progress by completing the task (tracker-ops,
+   Finishing / moving the card). That is what puts it in the review queue.
+   Re-claim first if the lease has lapsed. Do not mark the card Done.
 
 ## Stay autonomous within the task
 
