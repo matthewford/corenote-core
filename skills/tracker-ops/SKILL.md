@@ -1,7 +1,7 @@
 ---
 name: tracker-ops
-description: Operate the corenote tracker as an agent — claim tasks with receipts, hold leases with heartbeats, and complete with typed evidence a reviewer can verify.
-version: 1.1.0
+description: Operate the corenote tracker as an agent — claim tasks with receipts, hold leases with heartbeats, and when the work is finished move the card to In Review by completing with typed evidence.
+version: 1.2.0
 ---
 
 # Tracker operations
@@ -18,7 +18,8 @@ lapsed lease means the card can be reclaimed under you.
 Keep `workflow_status` (the human/agent tracker lane) separate from execution
 status on the same task. Dependencies require accepted Done; review binds
 immutable completion evidence. Comments advance activity even with separate
-thread revisions.
+thread revisions. Finished work leaves In Progress only by completing the
+task (Finishing / moving the card).
 
 ## Agent mutations
 
@@ -40,3 +41,21 @@ observed, the exact gate result (PR number, CI run, merge SHA, command output),
 and why it satisfies the card's acceptance, mapped to its assertions. A
 reviewer must verify the claim without re-deriving it. Plain language; no bare
 links without a sentence saying what they prove.
+
+## Finishing / moving the card
+
+Finished work must leave In Progress. Submit `corenote_task_complete` with
+the live `attempt_id` and fence, a `result_summary`, typed evidence (see
+Completion evidence), `context_session_id`, and the freshness receipt from
+`corenote_task_get` (`seen_activity_seq`, `seen_thread_revision`). That
+sets `workflow_status` to `in_review` and `execution` to `submitted`, so
+the card appears in the review queue. A card left In Progress does not.
+
+If the lease has lapsed, re-claim with `corenote_task_claim` before
+completing. The complete call has to quote the new attempt and fence.
+
+`corenote_task_transition` is for other board moves (for example back to
+todo). Completion is the normal way to reach In Review.
+
+Done requires an accepted review. The executor cannot review its own work.
+A merge SHA can be added as evidence before Done.
