@@ -1,64 +1,67 @@
 ---
 name: lane-loop
-description: Run a corenote implementation lane end to end — branch in your clone, red-first TDD, atomic commits, PR with green CI lanes, merge, move the card to In Review, and cleanup.
-version: 1.3.0
+description: Complete one Corenote task with current authority, admitted tools, real test evidence and a candidate PR for independent review.
+version: 1.4.0
 ---
 
 # The lane loop
 
-## Branch
+Read the card's acceptance clauses and the repository's agent instructions.
+Work on that one task and preserve its delivery instructions.
 
-Your container clone is already yours alone — nobody else works in it. Branch
-directly in it from the latest main:
+## Use the tools this run offers
 
-```
-git fetch origin
-git checkout -b core-<n>-<slug> origin/main
-```
+A hosted pi worker already has a task attempt and fence. Its controller
+renews the lease and records completion. Do not claim another attempt,
+operate the tracker on its behalf or assume a shell is available.
 
-Do not create git worktrees: they exist to protect a shared checkout, and your
-clone is not shared.
+For a pi repository task:
 
-## Build red-first
+1. Use `read_file` with a path relative to the checkout. Start with known
+   files such as `README.md`; a directory, an absolute path and a guessed
+   missing file are not file contents. A refused read is not evidence of
+   the file's contents. Follow a correctable refusal's guidance; stop on
+   lost authority or an uncertain operation.
+2. Use `edit_file` with the hash and unique text you actually observed,
+   or `create_file` for a new deliverable. Keep changes within the card.
+3. Use `run_tests` with an admitted command: `npm test`,
+   `npm run test:worker`, `npm run test:web` or `cargo test --locked`.
+   Other commands and installations need an exposed, approved operation.
+   A clone alone does not prepare dependencies. If the required test
+   cannot run, ask on the card with `ask_user`; never invent a pass.
+4. After a real successful test, call `propose_pr`. The default is a
+   normal PR. Use `delivery: "draft_only"` only when requested. A later
+   edit needs another test. Keep an explicit request to leave a PR open
+   even when the project otherwise permits automatic merging.
 
-Write the failing test that proves the gap, then the implementation that turns
-it green. Record test names and one-line red-to-green evidence for the PR body.
+Use `read_history` for this session's earlier records and retained output.
+Keep command ids when a test continues in the background; use
+`command_status` when that tool is offered instead of starting it again.
+A refused proposal, pending command or unanswered question is not success.
 
-## Land
+## Use direct commands only when admitted
 
-1. Push and open a PR referencing the card (`CORE-xxx`), with a plain-language
-   body: what and why, design decisions, evidence.
-2. Watch every CI lane; all must be green before merge. Infra flakes get one
-   rerun; your own diff gets a fix on the branch.
-3. Merge with a merge commit. Record the merge SHA.
-4. Clean up: delete `.corenote-tmp/` and any other scratch, then delete the
-   branch on the remote. Your clone goes away with the session; leave nothing
-   behind in the repo itself.
-5. Move the card off In Progress by completing the task (tracker-ops,
-   Finishing / moving the card). That is what puts it in the review queue.
-   Re-claim first if the lease has lapsed. Do not mark the card Done.
+Some runs offer a shell, Git or tracker tools. Use them only within their
+current grants and the task's authorization. Your container checkout is
+exclusive; no additional worktree is needed. Name the branch after the
+card, commit one logical change at a time and preserve unrelated work.
+Write a failing behavior check before its implementation and retain the
+red-to-green evidence. Credentials never enter commands, commits or logs.
 
-## Stay autonomous within the task
+## Hand off for review
 
-Keep going inside the task's scope: fix what fails, retry what flaked, and
-take the next in-scope step yourself instead of stopping to ask. Commit
-locally as each logical unit finishes, staging only files you changed.
-Outward-facing actions — push, publish, deploy, messaging — happen only
-through the named ops (pr-proposal) or the task's authorization. Never
-freelance beyond them.
+Report the candidate PR, exact head, real test receipts and unmet clauses.
+All required CI checks must pass on that same head. Do not skip CI or count
+a skipped or pending check as a pass. A changed head needs fresh checks.
+The runtime can wait for CI without another model turn.
 
-## Report each step
+An independent reviewer checks the acceptance clauses and the PR's code.
+The verdict must name the immutable evidence and the exact checked head.
+Green CI, a PR link and a review request are not a verdict. You cannot
+review your own work. The worker never merges its PR or marks its card
+Done. An authorized controller may merge only after independent acceptance,
+the project's gates and any explicit hold are satisfied.
 
-End every step's answer with one short status line:
-
-```
-Goal: … / Done: … / Next: … / Blocker: none-or-what
-```
-
-A human reading the run log can follow progress without replaying full steps.
-
-## Stay honest
-
-Distinguish proposed, implemented, tested and deployed behavior. A reference
-test is not proof that RLS, search or cloud storage enforce the same policy.
-Report acceptance evidence, limitations, and the next unmet delivery gate.
+If blocked, ask a concrete question once on the card and retain saved work.
+Do not replay an uncertain paid call or write to obtain a clearer error.
+Distinguish proposed, implemented, tested, reviewed and serving behavior.

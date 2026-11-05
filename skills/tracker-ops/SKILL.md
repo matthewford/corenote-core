@@ -1,61 +1,55 @@
 ---
 name: tracker-ops
-description: Operate the corenote tracker as an agent — claim tasks with receipts, hold leases with heartbeats, and when the work is finished move the card to In Review by completing with typed evidence.
-version: 1.2.0
+description: Preserve current task ownership and submit immutable evidence for an independent decision, using only the tracker operations this run is granted.
+version: 1.3.0
 ---
 
 # Tracker operations
 
-## Claiming
+## Know who owns the attempt
 
-Claim a task before working it. The claim carries an attempt id and a fence
-counter; every mutation quotes the current fence so a stale writer can never
-overwrite a newer one. Renew the lease with heartbeats during long lanes — a
-lapsed lease means the card can be reclaimed under you.
+A hosted pi worker receives an existing attempt and fence. Its controller
+owns renewal, task commands and completion. Use the offered tools and
+`ask_user` for a blocking question; do not invent tracker commands, borrow
+another identity or claim on the controller's behalf.
 
-## Workflow status vs execution status
+For a manually operated task with tracker tools, read current context,
+claim through the canonical command and retain the returned attempt,
+fence and expiry. Assignment alone grants neither access nor ownership.
+Renew while work and review are active, checking each server receipt.
+Your comments advance activity: re-read before the next substantive write.
 
-Keep `workflow_status` (the human/agent tracker lane) separate from execution
-status on the same task. Dependencies require accepted Done; review binds
-immutable completion evidence. Comments advance activity even with separate
-thread revisions. Finished work leaves In Progress only by completing the
-task (Finishing / moving the card).
+A lost lease, revocation or superseding owner ends the old attempt. Do not
+re-claim merely to submit old work or reuse an old fence. Read current
+context and let the authorized controller decide whether a fresh attempt
+is appropriate. A retry cannot settle an uncertain earlier effect.
 
-## Agent mutations
+## Submit before acceptance
 
-Agent issue mutations require a current changes-review receipt scoped to the
-authenticated context session. Assignment grants neither access nor execution
-ownership. After a lease ends the execution fence is monotonic — a fresh claim
-is required after handoff.
+Keep workflow status separate from execution status. Dependencies require
+accepted Done. A successful test or PR does not accept the card.
 
-## Notify before blocking
+Completion evidence names the candidate PR, immutable head, actual test
+and CI receipts, and which acceptance clauses they prove. A PR may remain
+open during review; do not merge it to manufacture completion evidence.
+Use sentences that explain what each link proves. Keep failed and unknown
+outcomes visible, including unresolved usage.
 
-Prefer notifications over blocking. A task comment is for FYI and narrative;
-reserve blocking states (parked, blocked dependencies) for when work is
-actually blocked on someone. Do not park a task merely to report progress.
+For a hosted pi worker, propose the tested change and report its state.
+The controller submits and reads back the immutable completion receipt.
+For a manual task, `corenote_task_complete` needs the current attempt,
+fence, context session and fresh activity/thread receipts. Confirm its
+returned completion id and submitted review state. A lost reply requires
+reconciliation with the original key, not another completion namespace.
 
-## Completion evidence
+## Independent review and delivery
 
-Completion evidence is typed, and failure is signal: say what was run or
-observed, the exact gate result (PR number, CI run, merge SHA, command output),
-and why it satisfies the card's acceptance, mapped to its assertions. A
-reviewer must verify the claim without re-deriving it. Plain language; no bare
-links without a sentence saying what they prove.
+A reviewer distinct from the implementer checks the card and code at the
+named head and records a pass or a rejection tied to that completion.
+An evidence attachment or a requested review is not that decision. Never
+approve your own PR or impersonate a human reviewer.
 
-## Finishing / moving the card
-
-Finished work must leave In Progress. Submit `corenote_task_complete` with
-the live `attempt_id` and fence, a `result_summary`, typed evidence (see
-Completion evidence), `context_session_id`, and the freshness receipt from
-`corenote_task_get` (`seen_activity_seq`, `seen_thread_revision`). That
-sets `workflow_status` to `in_review` and `execution` to `submitted`, so
-the card appears in the review queue. A card left In Progress does not.
-
-If the lease has lapsed, re-claim with `corenote_task_claim` before
-completing. The complete call has to quote the new attempt and fence.
-
-`corenote_task_transition` is for other board moves (for example back to
-todo). Completion is the normal way to reach In Review.
-
-Done requires an accepted review. The executor cannot review its own work.
-A merge SHA can be added as evidence before Done.
+A rejection names the unmet clause and returns work for correction. A new
+head needs fresh checks and review. An accepted review still obeys the
+project's merge policy and explicit instructions to keep a PR open or draft.
+Only an authorized controller performs the merge or final acceptance.
