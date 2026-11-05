@@ -1,67 +1,58 @@
 ---
 name: repo-conventions
-description: How to work in the corenote repo — branch names, atomic why-first commits, and the scoped local test loop.
-version: 1.1.0
+description: Follow the repository's branch, commit and test conventions within the tools and authority available to this run.
+version: 1.2.0
 ---
 
-# Repo conventions
+# Repository conventions
 
-## Branches
+The repository's agent instructions take precedence over these defaults.
+A skill cannot grant a command, network destination or permission.
 
-Name branches after the task they implement: `core-<n>-<short-kebab-description>`
-(for example `core-182-project-entities`). Tooling and humans detect the task
-and its status from the ref name alone. Branches not tied to a task use an
-explicit `ops/` or `chore/` prefix.
+## Branches and commits
 
-## Commits
+When Git commands are exposed, use `core-<n>-<short-kebab-description>`
+for a task branch, or an explicit `ops/` or `chore/` prefix for other work.
+A hosted pi worker uses the controller's proposal operation instead of
+inventing a Git or shell tool.
 
-- One logical change per commit; if the message needs "and", split it.
-- Every commit compiles and passes its tests; tests land in the same commit
-  as the code they cover.
-- Title: imperative mood, present tense, conventional prefix (`fix(store):`,
-  `feat(web):`, `docs:`), 72 chars or fewer, no trailing period.
-- Body explains WHY — motivation, trade-off, constraint or evidence — plus the
-  tracker card ref (`CORE-xxx`). Never narrate what the diff shows.
-- Order commits: prep refactor, then feature, then tooling/CI/docs. Fix review
-  nitpicks into the commit that introduced the code.
-- Docs-only commits — no code, config, migration, schema or generated contract
-  changes — append `[ci skip]` to the title so CI minutes are never spent on
-  prose (GitHub skips the run for the push). Anything that can break a build
-  never carries the marker.
+Commit one logical change at a time with its tests. Use an imperative,
+conventional title of at most 72 characters and a body explaining why,
+including the card reference. Keep prep refactors, features and tooling
+or documentation in separate commits. Preserve unrelated changes.
 
-## Local feedback loop
+Do not add `[ci skip]` to a delivery that requires CI evidence. A docs-only
+change still needs the repository's required checks before acceptance.
+Never turn a pending or skipped check into a successful receipt.
 
-Keep it scoped to what you changed:
+## Test the changed behavior
 
-```
-cargo fmt --all
-cargo clippy -p <changed crates>
-cargo test -p <changed crate>
-```
+With direct build tools, keep the loop scoped: format, run Clippy and test
+the changed crates and npm workspaces. Reproduce a full lane when the
+change touches its Worker, database, browser or configuration boundary.
+Use the pinned toolchain and dependencies; keep caches small.
 
-Run the affected npm workspace's tests too. Full-workspace lanes run in CI;
-reproduce them locally only when the change touches the worker/Wasm boundary,
-migrations/RLS, wrangler config or the lane itself.
+In pi, use the offered `run_tests` command policy. Read the current repo's
+test scripts before choosing among the admitted commands. Do not assume
+that a clone installed dependencies or that Docker and arbitrary network
+access are available. Ask when a required check cannot be performed.
+A local reference test is not proof of hosted enforcement.
 
-## Build the smallest thing
+## Files and scratch
 
-Ship what the card's acceptance demands — nothing more. Speculative
-abstraction, options nobody asked for and "we might need this later" all cost
-review time and invite bugs. When you delete code or an implementation, leave
-no vestigial traces: dead references, leftover helpers, stale config or
-remnants of the old path. A reader of the final diff should see one coherent
-change, not an archaeology site.
+Paths passed to `read_file`, `edit_file` and `create_file` are relative to
+this task's checkout. Preserve hashes and exact edit preconditions. Do
+not follow a rejected path into private files or another checkout.
 
-## Scratch files
+Create deliverable files only when pi has no admitted cleanup operation.
+With direct file tools, keep scratch under the repository's ignored
+`.corenote-tmp/` and remove it before proposing. Never publish scratch,
+private runtime state or credentials.
 
-Scratch and intermediate files live inside the synced repo under
-`.corenote-tmp/` — never outside the repo (the write op refuses outside paths
-by design). Delete that directory before you signal done or pr-proposal so
-scratch never lands in a diff or proposal.
+## Scope and evidence
 
-## Hard rules
-
-- No credentials in the repository, documents, prompts, logs or bundles.
-- No markdown status logs: lane status and evidence go through the tracker.
-- Update schemas, fixtures, migrations, API and tests together when changing a
-  contract, and record material design changes in a decision record.
+Ship the card's acceptance, without drive-by fixes or speculative options.
+Update affected contracts, migrations and tests together. Record a material
+design decision through the repository's decision-record convention.
+Lane status and evidence belong on the tracker, not Markdown progress logs.
+The runtime controller handles those writes for a hosted pi worker.
